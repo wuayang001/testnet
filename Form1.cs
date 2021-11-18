@@ -87,7 +87,7 @@ namespace testNetSpeed
                     so.Write(by, 0, osize);
                     if (state != null)
                     {
-                       state.Value = (int)bytedown;
+                        state.Value = (int)bytedown;
                     }
                     osize = st.Read(by, 0, (int)by.Length);
 
@@ -138,7 +138,10 @@ namespace testNetSpeed
                         });
                 }
 
-                MessageBox.Show(this, $"下载完成。总长度 {response.ContentLength}");
+                this.Invoke(new Action(() =>
+                {
+                    MessageBox.Show(this, $"下载完成。总长度 {response.ContentLength}");
+                }));
             }
         }
 
