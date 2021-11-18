@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -100,8 +102,82 @@ namespace testNetSpeed
             {
                 throw;
             }
-
-        
         }
+
+        private async void button_download1_Click(object sender, EventArgs e)
+        {
+            string url = this.textBox_url1.Text;
+            string output_filename = this.textBox_outputFileName.Text;
+
+            var request = System.Net.HttpWebRequest.Create(url);
+
+            using (var response = request.GetResponse())
+            {
+                // 比例转换
+                var ratio = new ProgressRatio(response.ContentLength);
+
+                this.Invoke(new Action(() =>
+                {
+                    progressBar1.Minimum = 0;
+                    progressBar1.Maximum = ratio.GetInteger(response.ContentLength);
+                }));
+
+                using (var source = response.GetResponseStream())
+                using (var destination = File.Create(output_filename))
+                {
+                    // await source.CopyToAsync(destination);
+                    await DumpStream(source,
+                        destination,
+                        (offset) =>
+                        {
+                            this.Invoke(new Action(() =>
+                            {
+                                progressBar1.Value = ratio.GetInteger(offset);
+                            }));
+                            return true;
+                        });
+                }
+
+                MessageBox.Show(this, $"下载完成。总长度 {response.ContentLength}");
+            }
+        }
+
+        public delegate bool ProgressOutput(long offset);
+
+        public static async Task<long> DumpStream(Stream streamSource,
+    Stream streamTarget,
+    ProgressOutput progressOutputMethod)
+        {
+            int nChunkSize = 8192;
+            byte[] bytes = new byte[nChunkSize];
+            long lLength = 0;
+            while (true)
+            {
+                if (progressOutputMethod != null)
+                {
+                    if (progressOutputMethod(lLength) == false)
+                        break;
+                }
+
+                int n = await streamSource.ReadAsync(bytes, 0, nChunkSize);
+
+                if (n != 0)
+                    await streamTarget.WriteAsync(bytes, 0, n);
+
+                if (n <= 0)
+                    break;
+
+                lLength += n;
+            }
+
+            if (progressOutputMethod != null)
+            {
+                progressOutputMethod(lLength);
+            }
+
+            return lLength;
+        }
+
+
     }
 }
