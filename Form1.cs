@@ -10,6 +10,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+
+
 namespace testNetSpeed
 {
     public partial class Form1 : Form
@@ -115,14 +117,21 @@ namespace testNetSpeed
             {
                 // 比例转换
                 var ratio = new ProgressRatio(response.ContentLength);
+                float a = response.ContentLength;
+                float b = 1048576;
+                float Mb = a / b;
+                string show = Mb.ToString("0.00");
 
-                this.Invoke(new Action(() =>
+                this.Invoke(
+                    new Action(() =>
                 {
                     progressBar1.Minimum = 0;
                     progressBar1.Maximum = ratio.GetInteger(response.ContentLength);
-                }));
+                }
+                ));
 
                 using (var source = response.GetResponseStream())
+                
                 using (var destination = File.Create(output_filename))
                 {
                     // await source.CopyToAsync(destination);
@@ -140,11 +149,11 @@ namespace testNetSpeed
 
                 this.Invoke(new Action(() =>
                 {
-                    MessageBox.Show(this, $"下载完成。总长度 {response.ContentLength}");
+                    MessageBox.Show(this, $"下载完成。总长度 {response.ContentLength}个字节，合计{show}M");
                 }));
             }
         }
-
+        //定义下面函数的progressoutput 的类型
         public delegate bool ProgressOutput(long offset);
 
         public static async Task<long> DumpStream(Stream streamSource,
