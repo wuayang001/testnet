@@ -98,16 +98,16 @@ namespace testNetSpeed
             // 
             // progressBar1
             // 
-            this.progressBar1.Location = new System.Drawing.Point(71, 90);
+            this.progressBar1.Location = new System.Drawing.Point(83, 90);
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(948, 62);
+            this.progressBar1.Size = new System.Drawing.Size(949, 62);
             this.progressBar1.TabIndex = 6;
             // 
             // label_percentage
             // 
             this.label_percentage.AutoSize = true;
             this.label_percentage.Font = new System.Drawing.Font("宋体", 22F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label_percentage.Location = new System.Drawing.Point(1025, 90);
+            this.label_percentage.Location = new System.Drawing.Point(1038, 90);
             this.label_percentage.Name = "label_percentage";
             this.label_percentage.Size = new System.Drawing.Size(250, 44);
             this.label_percentage.TabIndex = 7;

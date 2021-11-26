@@ -39,7 +39,7 @@ namespace testNetSpeed
 
                 //Stopwatch watch = new Stopwatch();
                 //watch.Start();
-                textBox2_out.Text = "D:/temp" + i;
+                textBox2_out.Text = "D:/temp/" + i;
                 string url = this.textBox1_URL.Text;
                 string output_filename = this.textBox2_out.Text;
 
