@@ -22,77 +22,87 @@ namespace testNetSpeed
 
         private async void button_download1_Click(object sender, EventArgs e)
         {
-            if (textBox1_URL.Text==null)
+            string URL = textBox1_URL.Text.Trim();
+            string OUT = textBox2_out.Text.Trim();
+            string cyc = textBox_cycle.Text.Trim();
+            if (string.IsNullOrEmpty(URL) == true
+                || string.IsNullOrEmpty(OUT) == true
+                || string.IsNullOrEmpty(cyc) == true)
             {
-                MessageBox.Show("不能为空！");
+                MessageBox.Show(this, "参数无效！请保证 各项参数不能为空！");
                 return;
             }
-
-            DateTime start = DateTime.Now;
-
-            //Stopwatch watch = new Stopwatch();
-            //watch.Start();
-
-            string url = this.textBox1_URL.Text;
-            string output_filename = this.textBox2_out.Text;
-
-            var request = System.Net.HttpWebRequest.Create(url);
-
-            using (var response = request.GetResponse())
+            int cycle = Convert.ToInt32(cyc);
+            for (int i = 1; i < cycle+1; i++)
             {
-                // 比例转换
-                var ratio = new ProgressRatio(response.ContentLength);
+                DateTime start = DateTime.Now;
 
-                //将下载的文件大小转换成MB格式。Mb
-                double a = response.ContentLength;
-                double b = 1024;
-                double Mb = a / b;
-                string show = Mb.ToString("0.00");
+                //Stopwatch watch = new Stopwatch();
+                //watch.Start();
+                textBox2_out.Text = "D:/temp" + i;
+                string url = this.textBox1_URL.Text;
+                string output_filename = this.textBox2_out.Text;
 
-                //计算进度条 
-                this.Invoke(
-                    new Action(() =>
-                    {
-                        progressBar1.Minimum = 0;
-                        progressBar1.Maximum = ratio.GetInteger(response.ContentLength);
-                    }
-                ));
+                var request = System.Net.HttpWebRequest.Create(url);
 
-                using (var source = response.GetResponseStream())
-
-                using (var destination = File.Create(output_filename))
+                using (var response = request.GetResponse())
                 {
-                    // await source.CopyToAsync(destination);
-                    await DumpStream(source,
-                        destination,
-                        (offset) =>
+                    // 比例转换
+                    var ratio = new ProgressRatio(response.ContentLength);
+
+                    //将下载的文件大小转换成MB格式。Mb
+                    double a = response.ContentLength;
+                    double b = 1024;
+                    double Mb = a / b;
+                    string show = Mb.ToString("0.00");
+
+                    //计算进度条 
+                    this.Invoke(
+                        new Action(() =>
                         {
-                            this.Invoke(new Action(() =>
-                            {
-                                progressBar1.Value = ratio.GetInteger(offset);
-                            }));
-                            return true;
-                        });
-                }
+                            progressBar1.Minimum = 0;
+                            progressBar1.Maximum = ratio.GetInteger(response.ContentLength);
+                        }
+                    ));
 
-                this.Invoke(new Action(() =>
-                {
-                   // MessageBox.Show(this, $"下载完成。总长度 {response.ContentLength}个字节，合计{show}M");
+                    using (var source = response.GetResponseStream())
+
+                    using (var destination = File.Create(output_filename))
+                    {
+                        // await source.CopyToAsync(destination);
+                        await DumpStream(source,
+                            destination,
+                            (offset) =>
+                            {
+                                this.Invoke(new Action(() =>
+                                {
+                                    progressBar1.Value = ratio.GetInteger(offset);
+                                    double percentage = ((double)offset / response.ContentLength) * 100;
+                                    label_percentage.Text = percentage.ToString("0.00") + "％";
+                                }));
+                                return true;
+                            });
+                    }
+
+                    this.Invoke(new Action(() =>
+                    {
+                    // MessageBox.Show(this, $"下载完成。总长度 {response.ContentLength}个字节，合计{show}M");
                 }));
 
 
-                DateTime end = DateTime.Now;
+                    DateTime end = DateTime.Now;
 
-                TimeSpan timespan = end - start;
-                //MessageBox.Show("所用时间："+timespan.TotalMilliseconds+"ms");
-                double second = timespan.TotalMilliseconds / 1000;
-                double speed = Mb / second;
-                string speeds = speed.ToString("0.00");
-                MessageBox.Show("下载速度是：" + speeds+"kb/s");
-            //MessageBox.Show(speed.ToString());
+                    TimeSpan timespan = end - start;
+                    //MessageBox.Show("所用时间："+timespan.TotalMilliseconds+"ms");
+                    double second = timespan.TotalMilliseconds / 1000;
+                    double speed = Mb / second;
+                    string speeds = speed.ToString("0.00");
+                    //MessageBox.Show("下载速度是：" + speeds+"kb/s");
+                    //MessageBox.Show(speed.ToString());
+                    textBox_statistics.Text += "总长度" + response.ContentLength + "\t合计：" + show + "K\t下载速度为：" + speeds + "kb/s\r\n";
+                }
             }
         }
-
         //定义下面函数的progressoutput 的类型
         //
         public delegate bool ProgressOutput(long offset);
@@ -135,9 +145,6 @@ namespace testNetSpeed
             return lLength;
             
         }
-
-
-
 
         private void button2_Click(object sender, EventArgs e)
         {
